@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>frnco</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manufacturing+Consent&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: url('back.webp') no-repeat center center;
+      background-size: cover;
+      background-position: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Overlay oscuro sobre la imagen de fondo */
+    body::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(ellipse at center, rgba(255,255,255,0.08) 0%, transparent 40%),
+        radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0.9) 100%),
+        rgba(10, 10, 10, 0.5);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Asegurar que el contenido esté sobre el overlay */
+    .grid,
+    .scanline,
+    .particles,
+    .glow-orb,
+    .logo-container,
+    .coordinates {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Noise texture sutil */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    /* Grid de fondo sutil */
+    .grid {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 50px 50px;
+      opacity: 0;
+      animation: gridFadeIn 2s ease-out 0.5s forwards;
+    }
+
+    @keyframes gridFadeIn {
+      to { opacity: 1; }
+    }
+
+    /* Partículas minimalistas */
+    .particles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.3);
+      animation: float linear infinite;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(100vh) translateX(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.3;
+      }
+      90% {
+        opacity: 0.3;
+      }
+      100% {
+        transform: translateY(-100vh) translateX(50px);
+        opacity: 0;
+      }
+    }
+
+    /* Container principal */
+    .logo-container {
+      position: relative;
+      z-index: 10;
+      perspective: 1000px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .logo-container:hover {
+      transform: scale(1.02);
+    }
+
+    /* Glow detrás del logo */
+    .logo-container::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 120%;
+      height: 120%;
+      background: radial-gradient(ellipse at center, rgba(255,255,255,0.15) 0%, transparent 60%);
+      filter: blur(40px);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .logo-wrapper {
+      font-family: "Manufacturing Consent", system-ui;
+      font-size: 140px;
+      position: relative;
+      display: inline-block;
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease-out;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .logo-wrapper {
+        font-size: 120px;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .logo-wrapper {
+        font-size: 100px;
+      }
+      .subtitle {
+        font-size: 12px;
+        letter-spacing: 2px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .logo-wrapper {
+        font-size: 80px;
+      }
+      .subtitle {
+        font-size: 11px;
+        letter-spacing: 2px;
+        margin-top: 15px;
+      }
+      .coordinates {
+        font-size: 10px;
+        bottom: 20px;
+        right: 20px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .logo-wrapper {
+        font-size: 60px;
+      }
+      .subtitle {
+        font-size: 9px;
+        letter-spacing: 1.5px;
+        margin-top: 12px;
+      }
+      .coordinates {
+        font-size: 9px;
+        bottom: 15px;
+        right: 15px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .logo-wrapper {
+        font-size: 48px;
+      }
+      .subtitle {
+        font-size: 8px;
+        letter-spacing: 1px;
+        margin-top: 10px;
+      }
+    }
+
+    .letter {
+      display: inline-block;
+      position: relative;
+      color: #ffffff;
+      text-shadow: 
+        0 0 1px rgba(255, 255, 255, 0.3),
+        0 1px 2px rgba(0, 0, 0, 0.5);
+      animation: fadeInPrecise 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+      transform: translateY(30px);
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .letter:nth-child(1) { animation-delay: 0.1s; }
+    .letter:nth-child(2) { animation-delay: 0.2s; }
+    .letter:nth-child(3) { animation-delay: 0.3s; }
+    .letter:nth-child(4) { animation-delay: 0.4s; }
+    .letter:nth-child(5) { animation-delay: 0.5s; }
+
+    @keyframes fadeInPrecise {
+      0% {
+        opacity: 0;
+        transform: translateY(30px);
+        filter: blur(10px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    /* Capas de profundidad técnicas */
+    .letter::before {
+      content: attr(data-letter);
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: rgba(255, 255, 255, 0.03);
+      z-index: -1;
+      transform: translate(-2px, -2px);
+    }
+
+    .letter::after {
+      content: attr(data-letter);
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: rgba(255, 255, 255, 0.03);
+      z-index: -2;
+      transform: translate(2px, 2px);
+    }
+
+    /* Scanline effect muy sutil */
+    .scanline {
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(
+        to bottom,
+        transparent,
+        rgba(255, 255, 255, 0.05),
+        transparent
+      );
+      animation: scan 8s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes scan {
+      0% {
+        transform: translateY(-100vh);
+      }
+      100% {
+        transform: translateY(100vh);
+      }
+    }
+
+    /* Glitch técnico minimalista */
+    .logo-wrapper.glitch .letter {
+      animation: glitchSubtle 0.2s ease;
+    }
+
+    @keyframes glitchSubtle {
+      0%, 100% { 
+        transform: translate(0, 0);
+        opacity: 1;
+      }
+      20% { 
+        transform: translate(-1px, 0);
+        opacity: 0.8;
+      }
+      40% { 
+        transform: translate(1px, 0);
+        opacity: 1;
+      }
+      60% { 
+        transform: translate(-1px, 0);
+        opacity: 0.9;
+      }
+      80% { 
+        transform: translate(1px, 0);
+        opacity: 1;
+      }
+    }
+
+    /* Glow orbs minimalistas */
+    .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.15;
+      animation: floatOrb 20s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .orb1 {
+      width: 300px;
+      height: 300px;
+      background: rgba(255, 255, 255, 0.1);
+      top: 20%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+
+    .orb2 {
+      width: 250px;
+      height: 250px;
+      background: rgba(255, 255, 255, 0.08);
+      bottom: 20%;
+      right: 15%;
+      animation-delay: 7s;
+    }
+
+    @keyframes floatOrb {
+      0%, 100% {
+        transform: translate(0, 0);
+      }
+      50% {
+        transform: translate(50px, -50px);
+      }
+    }
+
+    /* Cursor trail minimalista */
+    .trail {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: trailFade 1.2s ease-out forwards;
+      z-index: 2;
+    }
+
+    @keyframes trailFade {
+      to {
+        transform: scale(3);
+        opacity: 0;
+      }
+    }
+
+    /* Coordenadas técnicas */
+    .coordinates {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.3);
+      letter-spacing: 1px;
+      opacity: 0;
+      animation: fadeIn 1s ease-out 2s forwards;
+    }
+
+    /* Subtítulo */
+    .subtitle {
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 3px;
+      text-align: center;
+      margin-top: 20px;
+      opacity: 0;
+      animation: fadeIn 1s ease-out 1.2s forwards;
+      text-transform: lowercase;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    /* ========== CORTINA Y FORMULARIO ========== */
+    
+    .curtain-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    .curtain-container.active {
+      pointer-events: all;
+    }
+
+    .curtain-top,
+    .curtain-bottom {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 50%;
+      background: #0a0a0a;
+      transition: transform 1s cubic-bezier(0.76, 0, 0.24, 1);
+      z-index: 1001;
+    }
+
+    .curtain-top {
+      top: 0;
+      transform: translateY(-100%);
+    }
+
+    .curtain-bottom {
+      bottom: 0;
+      transform: translateY(100%);
+    }
+
+    .curtain-container.active .curtain-top {
+      transform: translateY(0);
+    }
+
+    .curtain-container.active .curtain-bottom {
+      transform: translateY(0);
+    }
+
+    /* Formulario de contacto */
+    .contact-form-wrapper {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 500px;
+      opacity: 0;
+      z-index: 1002;
+      transition: opacity 0.5s ease 0.6s;
+    }
+
+    .curtain-container.active .contact-form-wrapper {
+      opacity: 1;
+    }
+
+    .form-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .form-header h2 {
+      font-family: "Manufacturing Consent", system-ui;
+      font-size: 48px;
+      color: #fff;
+      margin-bottom: 10px;
+      letter-spacing: -1px;
+    }
+
+    .form-header p {
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 2px;
+      text-transform: lowercase;
+    }
+
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-group {
+      position: relative;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 15px 0;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-bottom-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+      text-transform: lowercase;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 15px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      text-transform: lowercase;
+      letter-spacing: 2px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: transparent;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      transition: left 0.3s ease;
+    }
+
+    .btn:hover::before {
+      left: 0;
+    }
+
+    .btn:hover {
+      border-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .btn-primary {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-close {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      width: 40px;
+      height: 40px;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1003;
+      opacity: 0;
+      transition: opacity 0.5s ease 0.8s, transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .curtain-container.active .btn-close {
+      opacity: 1;
+    }
+
+    .btn-close:hover {
+      border-color: rgba(255, 255, 255, 0.6);
+      transform: rotate(90deg);
+    }
+
+    /* Success message */
+    .success-message {
+      text-align: center;
+      padding: 40px;
+      display: none;
+    }
+
+    .success-message.active {
+      display: block;
+    }
+
+    .success-message h3 {
+      font-family: "Manufacturing Consent", system-ui;
+      font-size: 32px;
+      color: #fff;
+      margin-bottom: 15px;
+    }
+
+    .success-message p {
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+      letter-spacing: 2px;
+    }
+
+    /* Responsive form */
+    @media (max-width: 768px) {
+      .form-header h2 {
+        font-size: 36px;
+      }
+      
+      .btn-close {
+        top: 20px;
+        right: 20px;
+        width: 35px;
+        height: 35px;
+      }
+      
+      .contact-form-wrapper {
+        padding: 0 20px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .form-header h2 {
+        font-size: 28px;
+      }
+      
+      .form-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Grid de fondo -->
+  <div class="grid"></div>
+
+  <!-- Scanline -->
+  <div class="scanline"></div>
+
+  <!-- Partículas minimalistas -->
+  <div class="particles" id="particles"></div>
+
+  <!-- Orbs sutiles -->
+  <div class="glow-orb orb1"></div>
+  <div class="glow-orb orb2"></div>
+
+  <!-- Logo principal -->
+  <div class="logo-container" id="logoContainer">
+    <div class="logo-wrapper" id="logo">
+      <span class="letter" data-letter="f">f</span>
+      <span class="letter" data-letter="r">r</span>
+      <span class="letter" data-letter="n">n</span>
+      <span class="letter" data-letter="c">c</span>
+      <span class="letter" data-letter="o">o</span>
+    </div>
+    <div class="subtitle">development & project management</div>
+  </div>
+
+  <!-- Coordenadas -->
+  <div class="coordinates" id="coords">
+    <span id="x">X: 0.000</span> / <span id="y">Y: 0.000</span>
+  </div>
+
+  <!-- Cortina y formulario -->
+  <div class="curtain-container" id="curtainContainer">
+    <div class="curtain-top"></div>
+    <div class="curtain-bottom"></div>
+    
+    <button class="btn-close" id="btnClose">×</button>
+    
+    <div class="contact-form-wrapper">
+      <div class="form-header">
+        <h2>contact</h2>
+        <p>from chaos to reality</p>
+      </div>
+      
+      <form class="contact-form" id="contactForm">
+        <div class="form-group">
+          <input type="text" id="name" name="name" placeholder="name" required>
+        </div>
+        
+        <div class="form-group">
+          <input type="email" id="email" name="email" placeholder="email" required>
+        </div>
+        
+        <div class="form-group">
+          <input type="text" id="subject" name="subject" placeholder="subject" required>
+        </div>
+        
+        <div class="form-group">
+          <textarea id="message" name="message" placeholder="message" required></textarea>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn" id="btnCancel">cancel</button>
+          <button type="submit" class="btn btn-primary">send message</button>
+        </div>
+      </form>
+      
+      <div class="success-message" id="successMessage">
+        <h3>message sent</h3>
+        <p>i'll get back to you soon</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  
+  <script>
+    // Inicializar EmailJS con tu Public Key
+    emailjs.init('9eg6U3_2AeEUPj768'); // Reemplaza con tu Public Key
+    
+    const logo = document.getElementById('logo');
+    const logoContainer = document.getElementById('logoContainer');
+    const letters = document.querySelectorAll('.letter');
+    const body = document.body;
+    const particlesContainer = document.getElementById('particles');
+    const coordsX = document.getElementById('x');
+    const coordsY = document.getElementById('y');
+    
+    // Elementos de cortina y formulario
+    const curtainContainer = document.getElementById('curtainContainer');
+    const btnClose = document.getElementById('btnClose');
+    const btnCancel = document.getElementById('btnCancel');
+    const contactForm = document.getElementById('contactForm');
+    const successMessage = document.getElementById('successMessage');
+
+    // Crear partículas flotantes minimalistas
+    function createParticles() {
+      for (let i = 0; i < 30; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
+        particle.style.animationDelay = Math.random() * 5 + 's';
+        particlesContainer.appendChild(particle);
+      }
+    }
+    createParticles();
+
+    // Efecto glitch técnico aleatorio
+    setInterval(() => {
+      if (Math.random() > 0.7) {
+        logo.classList.add('glitch');
+        setTimeout(() => logo.classList.remove('glitch'), 200);
+      }
+    }, 8000);
+
+    // Parallax 3D muy sutil con el mouse
+    body.addEventListener('mousemove', (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5);
+      const y = (e.clientY / window.innerHeight - 0.5);
+      
+      // Parallax del logo
+      if (!curtainContainer.classList.contains('active')) {
+        logo.style.transform = `
+          rotateY(${x * 5}deg) 
+          rotateX(${-y * 5}deg) 
+          translateZ(0)
+        `;
+
+        // Parallax de las letras individual
+        letters.forEach((letter, index) => {
+          const depth = (index + 1) * 0.5;
+          letter.style.transform = `
+            translateX(${x * depth}px) 
+            translateY(${y * depth}px)
+          `;
+        });
+      }
+      
+      // Actualizar coordenadas técnicas
+      coordsX.textContent = `X: ${x.toFixed(3)}`;
+      coordsY.textContent = `Y: ${y.toFixed(3)}`;
+    });
+
+    // Trail del mouse minimalista
+    let lastTrail = 0;
+    body.addEventListener('mousemove', (e) => {
+      const now = Date.now();
+      if (now - lastTrail > 80 && !curtainContainer.classList.contains('active')) {
+        const trail = document.createElement('div');
+        trail.className = 'trail';
+        trail.style.left = e.clientX + 'px';
+        trail.style.top = e.clientY + 'px';
+        body.appendChild(trail);
+        setTimeout(() => trail.remove(), 1200);
+        lastTrail = now;
+      }
+    });
+
+    // Respiración sutil muy lenta
+    let breatheDirection = 1;
+    let breatheValue = 1;
+    
+    setInterval(() => {
+      if (!curtainContainer.classList.contains('active')) {
+        breatheValue += 0.001 * breatheDirection;
+        if (breatheValue >= 1.008 || breatheValue <= 1) {
+          breatheDirection *= -1;
+        }
+        letters.forEach(letter => {
+          letter.style.transform = `scale(${breatheValue})`;
+        });
+      }
+    }, 50);
+
+    // Micro-glitch en letras individuales aleatorias
+    setInterval(() => {
+      if (!curtainContainer.classList.contains('active')) {
+        const randomLetter = letters[Math.floor(Math.random() * letters.length)];
+        randomLetter.style.opacity = '0.7';
+        setTimeout(() => {
+          randomLetter.style.opacity = '1';
+        }, 50);
+      }
+    }, 12000);
+
+    // ========== FUNCIONALIDAD DE CORTINA Y FORMULARIO ==========
+    
+    // Abrir cortina al hacer clic en el logo
+    logoContainer.addEventListener('click', () => {
+      curtainContainer.classList.add('active');
+      body.style.overflow = 'hidden';
+    });
+
+    // Cerrar cortina
+    function closeCurtain() {
+      curtainContainer.classList.remove('active');
+      body.style.overflow = '';
+      contactForm.style.display = 'flex';
+      successMessage.classList.remove('active');
+      contactForm.reset();
+    }
+
+    btnClose.addEventListener('click', closeCurtain);
+    btnCancel.addEventListener('click', closeCurtain);
+
+    // Cerrar con ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && curtainContainer.classList.contains('active')) {
+        closeCurtain();
+      }
+    });
+
+    // Envío del formulario
+    contactForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      // Deshabilitar botón de envío para evitar doble click
+      const submitBtn = contactForm.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.textContent = 'sending...';
+      submitBtn.disabled = true;
+      
+      // Obtener datos del formulario
+      const templateParams = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        subject: document.getElementById('subject').value,
+        message: document.getElementById('message').value,
+        time: new Date().toLocaleString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      };
+      
+      // Enviar email usando EmailJS
+      emailjs.send('service_xrul6go', 'template_mi7nnb7', templateParams)
+        .then(() => {
+          // Éxito
+          contactForm.style.display = 'none';
+          successMessage.classList.add('active');
+          
+          // Cerrar automáticamente después de 3 segundos
+          setTimeout(() => {
+            closeCurtain();
+          }, 3000);
+        })
+        .catch((error) => {
+          // Error
+          console.error('Error al enviar el mensaje:', error);
+          alert('Hubo un error al enviar el mensaje. Por favor intenta de nuevo.');
+          
+          // Restaurar botón
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
+        });
+    });
+  </script>
+</body>
+</html>
